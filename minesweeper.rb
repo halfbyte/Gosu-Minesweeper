@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby -I.
 
-require 'gosu_enhanced'
-
 require 'constants'
+require 'grid'
 
 module Minesweeper
   # Minesweeper game
@@ -15,7 +14,8 @@ module Minesweeper
       super( WIDTH, HEIGHT, false, 50 )
       self.caption = 'Gosu Minesweeper'
 
-      @images = { tile: Gosu::Image.new( self, 'media/Tile.png', true ) }
+      set_images
+      @grid = Grid.new
     end
 
     def needs_cursor?
@@ -32,6 +32,14 @@ module Minesweeper
 
     private
 
+    def set_images
+      @images = { tile: Gosu::Image.new( self, 'media/Tile.png', true ) }
+
+      Block.image = @images[:tile]
+      Block.game  = self
+      Block.font  = Gosu::Font.new( self, Gosu.default_font_name, 20 )
+    end
+
     def draw_background
       point = Point.new( 0, 0 )
       size  = Size.new( WIDTH, HEIGHT )
@@ -42,12 +50,7 @@ module Minesweeper
     end
 
     def draw_grid
-      (0...16).each do |row|
-        (0...30).each do |col|
-          images[:tile].draw(
-            GRID_ORIGIN.x + TILE_WIDTH * col, GRID_ORIGIN.y + TILE_HEIGHT * row, 1 )
-        end
-      end
+      @grid.draw
     end
   end
 end
