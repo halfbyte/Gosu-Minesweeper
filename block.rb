@@ -5,7 +5,7 @@ module Minesweeper
   class Block
     include Constants
 
-    attr_reader :bomb, :number
+    attr_accessor :number
 
     @image = nil
     @game  = nil
@@ -36,6 +36,14 @@ module Minesweeper
 
     def mark
       @marked = true
+    end
+
+    def bomb?
+      @bomb
+    end
+
+    def add_bomb
+      @bomb = true
     end
 
     def draw
