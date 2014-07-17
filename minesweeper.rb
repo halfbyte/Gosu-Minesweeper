@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby -I.
 
 require 'constants'
+require 'resources'
 require 'grid'
 
 module Minesweeper
@@ -14,7 +15,8 @@ module Minesweeper
       super( WIDTH, HEIGHT, false, 50 )
       self.caption = 'Gosu Minesweeper'
 
-      set_images
+      load_resources
+
       @grid = Grid.new
     end
 
@@ -32,12 +34,13 @@ module Minesweeper
 
     private
 
-    def set_images
-      @images = { tile: Gosu::Image.new( self, 'media/Tile.png', true ) }
+    def load_resources
+      loader = ResourceLoader.new( self )
 
-      Block.image = @images[:tile]
-      Block.game  = self
-      Block.font  = Gosu::Font.new( self, Gosu.default_font_name, 20 )
+      @images = loader.images
+      @fonts  = loader.fonts
+
+      Block.setup_graphics( self, @images, @fonts )
     end
 
     def draw_background
