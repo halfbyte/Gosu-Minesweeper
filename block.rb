@@ -36,20 +36,24 @@ module Minesweeper
       @closed
     end
 
-    def show
-      @closed = false
-    end
-
     def marked?
       @marked
     end
 
-    def toggle_mark
-      @marked = !@marked
-    end
-
     def bomb?
       @bomb
+    end
+
+    def empty?
+      !bomb? && @number == 0
+    end
+
+    def show
+      @closed = false
+    end
+
+    def toggle_mark
+      @marked = !@marked
     end
 
     def add_bomb
