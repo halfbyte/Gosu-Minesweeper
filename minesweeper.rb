@@ -43,8 +43,8 @@ module Minesweeper
       @position = Position.new( mouse_x, mouse_y, :mark ) if code == Gosu::MsRight
     end
 
-    # Left Mouse Button is detected on release to avoid it being triggered accidentally
-    # on a square.
+    # Left Mouse Button is detected on release to avoid it being triggered
+    # accidentally on a bombed square.
     def button_up( code )
       return unless code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
 
@@ -90,6 +90,7 @@ module Minesweeper
     end
   end
 
+  # Hold the mouse position and the operation to perform
   class Position
     include GosuEnhanced
 

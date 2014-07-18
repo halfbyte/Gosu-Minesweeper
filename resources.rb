@@ -1,4 +1,5 @@
 module Minesweeper
+  # Load necessary graphic resources
   class ResourceLoader
     def initialize( game )
       @game = game
