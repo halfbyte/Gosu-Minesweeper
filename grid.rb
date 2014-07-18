@@ -74,22 +74,17 @@ module Minesweeper
     end
 
     def neighbouring_bombs( idx )
-      neighbours( idx ).select { |idx| @grid[idx].bomb? }.size
+      neighbours( idx ).select { |index| @grid[index].bomb? }.size
     end
 
     def neighbours( idx )
       neighs = []
 
-      neighs << idx - (@width + 1) if idx - (@width + 1) >= 0
-      neighs << idx - @width       if idx - @width >= 0
-      neighs << idx - (@width - 1) if idx - (@width - 1) >= 0
+      neighbour_offsets.each do |offset|
+        index = idx + offset
 
-      neighs << idx - 1 if idx > 0
-      neighs << idx + 1 if idx + 1 < @grid.size
-
-      neighs << idx + (@width - 1) if idx + (@width - 1) < @grid.size
-      neighs << idx + @width       if idx + @width  < @grid.size
-      neighs << idx + (@width + 1) if idx + (@width + 1)  < @grid.size
+        neighs << index if valid_index? index
+      end
 
       neighs
     end
@@ -104,6 +99,14 @@ module Minesweeper
 
     def valid_block?( row, col )
       row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
+    end
+
+    def valid_index?( index )
+      index.between?( 0, @grid.size - 1 )
+    end
+
+    def neighbour_offsets
+      [-(@width + 1), -@width, -(@width - 1), -1, 1, @width - 1, @width, @width + 1]
     end
   end
 end
