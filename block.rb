@@ -28,16 +28,16 @@ module Minesweeper
     def initialize( point, bomb = false, number = 0 )
       @point, @bomb, @number = point, bomb, number
 
-      @hidden = true
+      @closed = true
       @marked = false
     end
 
-    def hidden?
-      @hidden
+    def closed?
+      @closed
     end
 
     def show
-      @hidden = false
+      @closed = false
     end
 
     def marked?
@@ -57,22 +57,23 @@ module Minesweeper
     end
 
     def draw
-      if hidden?
-        self.class.tile.draw( @point.x, @point.y, 1 )
-        self.class.flag.draw( @point.x, @point.y, 2 ) if marked?
-        return
-      end
+      return draw_closed if closed?
 
       self.class.game.draw_rectangle( @point, TILE_SIZE, 1, Gosu::Color::WHITE )
 
-      if bomb?    # Oops
-        self.class.bomb.draw( @point.x, @point.y, 1 )
-      elsif @number > 0
+      return self.class.bomb.draw( @point.x, @point.y, 1 ) if bomb?    # Oops
+
+      if @number > 0
         self.class.font.draw( @number.to_s, @point.x + 8, @point.y + 2, 2,
                               1, 1, NUMBERS[@number] )
       else
         self.class.game.draw_rectangle( @point, TILE_SIZE, 1, SILVER )
       end
+    end
+
+    def draw_closed
+      self.class.tile.draw( @point.x, @point.y, 1 )
+      self.class.flag.draw( @point.x, @point.y, 2 ) if marked?
     end
   end
 end
