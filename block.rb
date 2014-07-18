@@ -44,8 +44,8 @@ module Minesweeper
       @marked
     end
 
-    def mark
-      @marked = true
+    def toggle_mark
+      @marked = !@marked
     end
 
     def bomb?
