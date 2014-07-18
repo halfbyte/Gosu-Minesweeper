@@ -28,12 +28,11 @@ module Minesweeper
       @grid.each_with_index { |block, idx| yield block, idx }
     end
 
-    def block_from_position( position )
-      col = ((position[0] - @origin.x) / TILE_WIDTH).floor
-      row = ((position[1] - @origin.y) / TILE_HEIGHT).floor
+    def block_from_pos( pos )
+      col = ((pos.x - @origin.x) / TILE_WIDTH).floor
+      row = ((pos.y - @origin.y) / TILE_HEIGHT).floor
 
-      if row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
-        puts "R: #{row}, C: #{col}"
+      if valid_block?( row, col )
         @grid[row * @width + col]
       else
         nil
@@ -101,6 +100,10 @@ module Minesweeper
       when 16   then 46   # Medium 16x16
       else 99             # Hard   30x16
       end
+    end
+
+    def valid_block?( row, col )
+      row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
     end
   end
 end

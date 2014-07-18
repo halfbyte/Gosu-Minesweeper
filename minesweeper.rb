@@ -34,27 +34,21 @@ module Minesweeper
     end
 
     def button_down( code )
-      close if code == Gosu::KbEscape
+      close if code == Gosu::KbEscape   # DEBUG
 
       if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
         return puts 'Both Both'
       end
 
-      if button_down?( Gosu::MsLeft )   # On for a chord
-        return puts 'Both RL' if code == Gosu::MsRight
-      end
-
-      if button_down?( Gosu::MsRight )
-        return puts 'Both LR ' if code == Gosu::MsLeft
-      end
-
-      print 'Right Only :mark, ' if code == Gosu::MsRight
-      @position = [mouse_x, mouse_y, :mark] if code == Gosu::MsRight
+      @position = Position.new( mouse_x, mouse_y, :mark ) if code == Gosu::MsRight
     end
 
+    # Left Mouse Button is detected on release to avoid it being triggered accidentally
+    # on a square.
     def button_up( code )
-      print 'Left Only :open, ' if code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
-      @position = [mouse_x, mouse_y, :open] if code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
+      return unless code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
+
+      @position = Position.new( mouse_x, mouse_y, :open )
     end
 
     private
@@ -69,8 +63,8 @@ module Minesweeper
     end
 
     def update_position
-      block = @grid.block_from_position @position
-      op    = @position[2]
+      block = @grid.block_from_pos @position.point
+      op    = @position.op
 
       @position = nil
 
@@ -93,6 +87,17 @@ module Minesweeper
 
     def draw_grid
       @grid.draw
+    end
+  end
+
+  class Position
+    include GosuEnhanced
+
+    attr_reader :point, :op
+
+    def initialize( x, y, op )
+      @point = Point.new( x, y )
+      @op = op
     end
   end
 end
