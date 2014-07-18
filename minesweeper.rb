@@ -25,11 +25,36 @@ module Minesweeper
     end
 
     def update
+      update_position if @position
     end
 
     def draw
       draw_background
       draw_grid
+    end
+
+    def button_down( code )
+      close if code == Gosu::KbEscape
+
+      if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
+        return puts 'Both Both'
+      end
+
+      if button_down?( Gosu::MsLeft )   # On for a chord
+        return puts 'Both RL' if code == Gosu::MsRight
+      end
+
+      if button_down?( Gosu::MsRight )
+        return puts 'Both LR ' if code == Gosu::MsLeft
+      end
+
+      print 'Right Only :mark, ' if code == Gosu::MsRight
+      @position = [mouse_x, mouse_y, :mark] if code == Gosu::MsRight
+    end
+
+    def button_up( code )
+      print 'Left Only :open, ' if code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
+      @position = [mouse_x, mouse_y, :open] if code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
     end
 
     private
@@ -41,6 +66,20 @@ module Minesweeper
       @fonts  = loader.fonts
 
       Block.setup_graphics( self, @images, @fonts )
+    end
+
+    def update_position
+      block = @grid.block_from_position @position
+      op    = @position[2]
+
+      @position = nil
+
+      return unless block
+
+      case op
+      when :mark  then block.toggle_mark
+      when :open  then block.show
+      end
     end
 
     def draw_background
