@@ -28,6 +28,18 @@ module Minesweeper
       @grid.each_with_index { |block, idx| yield block, idx }
     end
 
+    def block_from_position( position )
+      col = ((position[0] - @origin.x) / TILE_WIDTH).floor
+      row = ((position[1] - @origin.y) / TILE_HEIGHT).floor
+
+      if row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
+        puts "R: #{row}, C: #{col}"
+        @grid[row * @width + col]
+      else
+        nil
+      end
+    end
+
     private
 
     def empty_grid
@@ -36,8 +48,6 @@ module Minesweeper
       (0...@height).each do |row|
         (0...@width).each do |col|
           block = Block.new( @origin.offset( col * TILE_WIDTH, row * TILE_HEIGHT ) )
-          block.show if rand( 0..1 ) == 1
-          block.mark if rand( 0..1 ) == 1 && block.hidden?
           grid << block
         end
       end
