@@ -7,6 +7,7 @@ module Minesweeper
 
     def initialize( width = GRID_WIDTH, height = GRID_HEIGHT )
       @width, @height = width, height   # Width and Height in blocks
+      GridPos.set_limits( width, height )
 
       @origin = GRID_ORIGIN.offset( (GRID_WIDTH - width) * TILE_WIDTH / 2,
                                     (GRID_HEIGHT - height) * TILE_HEIGHT / 2 )
@@ -18,6 +19,10 @@ module Minesweeper
 
     def draw
       each { |block| block.draw }
+    end
+
+    def open_all
+      each { |block| block.show }
     end
 
     def each
@@ -42,6 +47,19 @@ module Minesweeper
       block.empty? ? open_blanks( index ) : block.show
     end
 
+    def auto_open( pos )
+      block, index = block_from_pos pos
+
+      return unless block && block.number == neighbouring_marks( index )
+
+      neighbours( index ).each do |pos|
+        block = @grid[pos.to_index]
+        next unless block.closed? && !block.marked?
+
+        block.empty? ? open_blanks( pos.to_index ) : block.show
+      end
+    end
+
     private
 
     def empty_grid
@@ -58,11 +76,14 @@ module Minesweeper
     end
 
     def add_bombs
-      bombs.times do
+      to_add  = bombs
+
+      bombs.times do |count|
         place = 0
 
         loop do
           place = rand( 0...@grid.size )
+
           break unless @grid[place].bomb?
         end
 
@@ -77,20 +98,13 @@ module Minesweeper
     end
 
     def open_blanks( index )
-      to_open = [index]
+      @grid[index].show
 
-      until to_open.empty?
-        cur   = to_open.shift
-        block = @grid[cur]
+      neighbours( index ).each do |pos|
+        block = @grid[pos.to_index]
+        next unless block.closed? && !block.marked?
 
-        next unless block.closed?
-
-        block.show
-
-        neighbours( cur ).each do |i|
-          b = @grid[i]
-          to_open << i if b.closed? && b.empty?
-        end
+        block.empty? ? open_blanks( pos.to_index ) : block.show
       end
     end
 
@@ -98,7 +112,7 @@ module Minesweeper
       col = ((pos.x - @origin.x) / TILE_WIDTH).floor
       row = ((pos.y - @origin.y) / TILE_HEIGHT).floor
 
-      if valid_block?( row, col )
+      if GridPos.valid_pos?( row, col )
         index = row * @width + col
         [@grid[index], index]
       else
@@ -106,17 +120,34 @@ module Minesweeper
       end
     end
 
+    # Number of neighbouring bombs
     def neighbouring_bombs( idx )
-      neighbours( idx ).select { |index| @grid[index].bomb? }.size
+      neighbours( idx ).select { |pos| @grid[pos.to_index].bomb? }.size
     end
 
-    def neighbours( idx )
-      neighs = []
+    # Number of neighbouring marks
+    def neighbouring_marks( idx )
+      neighbours( idx ).select { |pos| @grid[pos.to_index].marked? }.size
+    end
 
-      neighbour_offsets.each do |offset|
-        index = idx + offset
+    # List of neighbouring blanks in horizontal and vertical directions
+    def neighbouring_blanks( idx )
+      neighbours( idx, :straight ).select { |pos| @grid[pos.to_index].empty? }
+    end
 
-        neighs << index if valid_index? index
+    # List of valid neighbpurs
+    def neighbours( idx, straight = false )
+      neighs  = []
+      base    =  GridPos.from_index( idx )
+
+      (-1..1).each do |row|
+        (-1..1).each do |col|
+          next if row == 0 && col == 0
+          next if straight && row != 0 && col != 0
+
+          point = GridPos.new( base.row + row, base.col + col )
+          neighs << point if point.valid?
+        end
       end
 
       neighs
@@ -129,17 +160,48 @@ module Minesweeper
       else 99             # Hard   30x16
       end
     end
+  end
 
-    def valid_block?( row, col )
-      row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
+  # Hold and convert between (row, col) and index.
+  class GridPos
+    attr_reader :row, :col
+
+    def self.set_limits( width, height )
+      @width, @height = width.to_i, height.to_i
     end
 
-    def valid_index?( index )
-      index.between?( 0, @grid.size - 1 )
+    def self.from_index( index )
+      new( index / @width, index % @width )
     end
 
-    def neighbour_offsets
-      [-(@width + 1), -@width, -(@width - 1), -1, 1, @width - 1, @width, @width + 1]
+    def self.valid_index?( index )
+      valid_pos?( GridPos.from_index( index ) )
+    end
+
+    def self.valid_pos?( row, col = nil )
+      if row.respond_to? :row
+        row.row.between?( 0, @height - 1 ) && row.col.between?( 0, @width - 1 )
+      else
+        row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
+      end
+    end
+
+    def initialize( row, col )
+      @row, @col = row, col
+    end
+
+    def to_index
+      @row * self.class.width + @col
+    end
+
+    def valid?
+      self.class.valid_pos?( self )
+    end
+
+    private
+
+    class << self
+      attr_reader :width, :height
     end
   end
 end
