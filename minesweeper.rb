@@ -16,8 +16,7 @@ module Minesweeper
       self.caption = 'Gosu Minesweeper'
 
       load_resources
-
-      @grid = Grid.new
+      reset_game
     end
 
     def needs_cursor?
@@ -35,9 +34,12 @@ module Minesweeper
 
     def button_down( code )
       close if code == Gosu::KbEscape   # DEBUG
+      reset_game if code == Gosu::KbR
+
+      @start_time ||= Time.now
 
       if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
-        return puts 'Both Both'
+        return @position = Position.new( mouse_x, mouse_y, :auto_open)
       end
 
       @position = Position.new( mouse_x, mouse_y, :mark ) if code == Gosu::MsRight
@@ -52,6 +54,11 @@ module Minesweeper
     end
 
     private
+
+    def reset_game
+      @grid = Grid.new
+      @start_time = nil
+    end
 
     def load_resources
       loader = ResourceLoader.new( self )
