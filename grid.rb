@@ -21,16 +21,9 @@ module Minesweeper
       each { |block| block.draw }
     end
 
-    def open_all
-      each { |block| block.show }
-    end
-
-    def each
-      @grid.each { |block| yield block }
-    end
-
-    def each_with_index
-      @grid.each_with_index { |block, idx| yield block, idx }
+    # Open up all the blocks that are unmarked bombs or incorrectly marked.
+    def open_all_bombs
+      each { |block| block.show if block.bomb? != block.marked? }
     end
 
     def mark( pos )
@@ -44,7 +37,7 @@ module Minesweeper
 
       return unless block
 
-      block.empty? ? open_blanks( index ) : block.show
+      open_block( index )
     end
 
     def auto_open( pos )
@@ -56,7 +49,7 @@ module Minesweeper
         block = @grid[pos.to_index]
         next unless block.closed? && !block.marked?
 
-        block.empty? ? open_blanks( pos.to_index ) : block.show
+        open_block( pos.to_index )
       end
     end
 
@@ -104,7 +97,7 @@ module Minesweeper
         block = @grid[pos.to_index]
         next unless block.closed? && !block.marked?
 
-        block.empty? ? open_blanks( pos.to_index ) : block.show
+        open_block( pos.to_index )
       end
     end
 
@@ -120,6 +113,16 @@ module Minesweeper
       end
     end
 
+    def open_block( index )
+      block = @grid[index]
+
+      if block.bomb?
+        open_all_bombs
+      else
+        block.empty? ? open_blanks( index ) : block.show
+      end
+    end
+
     # Number of neighbouring bombs
     def neighbouring_bombs( idx )
       neighbours( idx ).select { |pos| @grid[pos.to_index].bomb? }.size
@@ -130,20 +133,14 @@ module Minesweeper
       neighbours( idx ).select { |pos| @grid[pos.to_index].marked? }.size
     end
 
-    # List of neighbouring blanks in horizontal and vertical directions
-    def neighbouring_blanks( idx )
-      neighbours( idx, :straight ).select { |pos| @grid[pos.to_index].empty? }
-    end
-
     # List of valid neighbpurs
-    def neighbours( idx, straight = false )
+    def neighbours( idx )
       neighs  = []
       base    =  GridPos.from_index( idx )
 
       (-1..1).each do |row|
         (-1..1).each do |col|
           next if row == 0 && col == 0
-          next if straight && row != 0 && col != 0
 
           point = GridPos.new( base.row + row, base.col + col )
           neighs << point if point.valid?
@@ -151,6 +148,14 @@ module Minesweeper
       end
 
       neighs
+    end
+
+    def each
+      @grid.each { |block| yield block }
+    end
+
+    def each_with_index
+      @grid.each_with_index { |block, idx| yield block, idx }
     end
 
     def bombs
@@ -171,7 +176,7 @@ module Minesweeper
     end
 
     def self.from_index( index )
-      new( index / @width, index % @width )
+      new( index / width, index % width )
     end
 
     def self.valid_index?( index )
@@ -180,9 +185,9 @@ module Minesweeper
 
     def self.valid_pos?( row, col = nil )
       if row.respond_to? :row
-        row.row.between?( 0, @height - 1 ) && row.col.between?( 0, @width - 1 )
+        row.row.between?( 0, height - 1 ) && row.col.between?( 0, width - 1 )
       else
-        row.between?( 0, @height - 1 ) && col.between?( 0, @width - 1 )
+        row.between?( 0, height - 1 ) && col.between?( 0, width - 1 )
       end
     end
 
