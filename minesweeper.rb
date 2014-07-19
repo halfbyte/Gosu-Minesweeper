@@ -35,6 +35,7 @@ module Minesweeper
     def button_down( code )
       close if code == Gosu::KbEscape   # DEBUG
       reset_game if code == Gosu::KbR
+      @grid.open_all if code == Gosu::KbO
 
       @start_time ||= Time.now
 
