@@ -48,8 +48,10 @@ module Minesweeper
       !bomb? && @number == 0
     end
 
+    # Show returns whether a bomb has been uncovered
     def show
       @closed = false
+      bomb?
     end
 
     def toggle_mark
