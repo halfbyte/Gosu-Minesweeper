@@ -63,17 +63,9 @@ module Minesweeper
     end
 
     def update_position
-      block = @grid.block_from_pos @position.point
-      op    = @position.op
+      @grid.send( @position.op, @position.point )
 
       @position = nil
-
-      return unless block
-
-      case op
-      when :mark  then block.toggle_mark
-      when :open  then block.show
-      end
     end
 
     def draw_background
