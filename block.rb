@@ -55,7 +55,7 @@ module Minesweeper
     end
 
     def toggle_mark
-      @marked = !@marked
+      @marked = !@marked if closed?
     end
 
     def add_bomb
@@ -65,21 +65,26 @@ module Minesweeper
     def draw
       return draw_closed if closed?
 
-      self.class.game.draw_rectangle( @point, TILE_SIZE, 1, Gosu::Color::WHITE )
+      game.draw_rectangle( @point, TILE_SIZE, 1, Gosu::Color::WHITE )
 
       return self.class.bomb.draw( @point.x, @point.y, 1 ) if bomb?    # Oops
 
-      if @number > 0
-        self.class.font.draw( @number.to_s, @point.x + 8, @point.y + 2, 2,
-                              1, 1, NUMBERS[@number] )
-      else
-        self.class.game.draw_rectangle( @point, TILE_SIZE, 1, SILVER )
-      end
+      # Incorrectly Marked?
+      game.draw_rectangle( @point, TILE_SIZE, 1, Gosu::Color::RED ) if marked?
+
+      self.class.font.draw( @number.to_s, @point.x + 8, @point.y + 2, 2,
+                              1, 1, NUMBERS[@number] ) if number > 0
     end
 
     def draw_closed
       self.class.tile.draw( @point.x, @point.y, 1 )
       self.class.flag.draw( @point.x, @point.y, 2 ) if marked?
+    end
+
+    private
+
+    def game
+      self.class.game
     end
   end
 end
