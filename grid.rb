@@ -28,15 +28,18 @@ module Minesweeper
       @grid.each_with_index { |block, idx| yield block, idx }
     end
 
-    def block_from_pos( pos )
-      col = ((pos.x - @origin.x) / TILE_WIDTH).floor
-      row = ((pos.y - @origin.y) / TILE_HEIGHT).floor
+    def mark( pos )
+      block, _ = block_from_pos pos
 
-      if valid_block?( row, col )
-        @grid[row * @width + col]
-      else
-        nil
-      end
+      block.toggle_mark if block
+    end
+
+    def open( pos )
+      block, index = block_from_pos pos
+
+      return unless block
+
+      block.empty? ? open_blanks( index ) : block.show
     end
 
     private
@@ -70,6 +73,36 @@ module Minesweeper
     def set_numbers
       each_with_index do |block, idx|
         block.number = neighbouring_bombs( idx ) unless block.bomb?
+      end
+    end
+
+    def open_blanks( index )
+      to_open = [index]
+
+      until to_open.empty?
+        cur   = to_open.shift
+        block = @grid[cur]
+
+        next unless block.closed?
+
+        block.show
+
+        neighbours( cur ).each do |i|
+          b = @grid[i]
+          to_open << i if b.closed? && b.empty?
+        end
+      end
+    end
+
+    def block_from_pos( pos )
+      col = ((pos.x - @origin.x) / TILE_WIDTH).floor
+      row = ((pos.y - @origin.y) / TILE_HEIGHT).floor
+
+      if valid_block?( row, col )
+        index = row * @width + col
+        [@grid[index], index]
+      else
+        [nil, -1]
       end
     end
 
