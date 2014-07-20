@@ -26,30 +26,32 @@ module Minesweeper
       each { |block| block.show if block.bomb? != block.marked? }
     end
 
-    def mark( pos )
-      block, _ = block_from_pos pos
+    def mark( point )
+      block, _ = block_from_point point
 
       block.toggle_mark if block
     end
 
-    def open( pos )
-      block, index = block_from_pos pos
+    def open( point )
+      block, index = block_from_point point
 
       return unless block
 
-      open_block( index )
+      open_block( GridPos.from_index( index ) )
     end
 
-    def auto_open( pos )
-      block, index = block_from_pos pos
+    def auto_open( point )
+      block, index = block_from_point point
 
-      return unless block && block.number == neighbouring_marks( index )
+      return unless block &&
+        block.number > 0 &&
+        block.number == neighbouring_marks( index )
 
       neighbours( index ).each do |pos|
-        block = @grid[pos.to_index]
+        block = grid( pos )
         next unless block.closed? && !block.marked?
 
-        open_block( pos.to_index )
+        open_block( pos )
       end
     end
 
@@ -94,43 +96,39 @@ module Minesweeper
       @grid[index].show
 
       neighbours( index ).each do |pos|
-        block = @grid[pos.to_index]
+        block = grid( pos )
         next unless block.closed? && !block.marked?
 
-        open_block( pos.to_index )
+        open_block( pos )
       end
     end
 
-    def block_from_pos( pos )
-      col = ((pos.x - @origin.x) / TILE_WIDTH).floor
-      row = ((pos.y - @origin.y) / TILE_HEIGHT).floor
+    def block_from_point( point )
+      pos = GridPos.new(
+        (point.y - @origin.y) / TILE_HEIGHT,
+        (point.x - @origin.x) / TILE_WIDTH )
 
-      if GridPos.valid_pos?( row, col )
-        index = row * @width + col
-        [@grid[index], index]
-      else
-        [nil, -1]
-      end
+      pos.valid? ? [grid( pos ), pos.to_index] : [nil, -1]
     end
 
-    def open_block( index )
-      block = @grid[index]
+    def open_block( pos )
+      block = grid( pos )
 
       if block.bomb?
         open_all_bombs
       else
-        block.empty? ? open_blanks( index ) : block.show
+        block.empty? ? open_blanks( pos.to_index ) : block.show
       end
     end
 
     # Number of neighbouring bombs
     def neighbouring_bombs( idx )
-      neighbours( idx ).select { |pos| @grid[pos.to_index].bomb? }.size
+      neighbours( idx ).select { |pos| grid( pos ).bomb? }.size
     end
 
     # Number of neighbouring marks
     def neighbouring_marks( idx )
-      neighbours( idx ).select { |pos| @grid[pos.to_index].marked? }.size
+      neighbours( idx ).select { |pos| grid( pos ).marked? }.size
     end
 
     # List of valid neighbpurs
@@ -165,6 +163,10 @@ module Minesweeper
       else 99             # Hard   30x16
       end
     end
+
+    def grid( pos )
+      @grid[pos.to_index]
+    end
   end
 
   # Hold and convert between (row, col) and index.
@@ -179,20 +181,8 @@ module Minesweeper
       new( index / width, index % width )
     end
 
-    def self.valid_index?( index )
-      valid_pos?( GridPos.from_index( index ) )
-    end
-
-    def self.valid_pos?( row, col = nil )
-      if row.respond_to? :row
-        row.row.between?( 0, height - 1 ) && row.col.between?( 0, width - 1 )
-      else
-        row.between?( 0, height - 1 ) && col.between?( 0, width - 1 )
-      end
-    end
-
     def initialize( row, col )
-      @row, @col = row, col
+      @row, @col = row.to_i, col.to_i
     end
 
     def to_index
@@ -200,7 +190,7 @@ module Minesweeper
     end
 
     def valid?
-      self.class.valid_pos?( self )
+      row.between?( 0, self.class.height - 1 ) && col.between?( 0, self.class.width - 1 )
     end
 
     private
