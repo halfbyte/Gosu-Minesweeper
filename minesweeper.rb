@@ -12,7 +12,7 @@ module Minesweeper
     attr_reader :image, :font
 
     def initialize
-      puts "#{WIDTH} x #{HEIGHT}"
+      puts "Origin: #{GRID_ORIGIN}"
       super( WIDTH, HEIGHT, false, 50 )
       self.caption = 'Gosu Minesweeper'
 
@@ -78,12 +78,14 @@ module Minesweeper
     end
 
     def draw_background
-      point = Point.new( 0, 0 )
-      size  = Size.new( WIDTH, HEIGHT )
-      draw_rectangle( point, size, 0, SILVER )
+      @image[:background].draw( 0, 0, 0 )
 
-      point.move_to!( GRID_ORIGIN.x - 1, GRID_ORIGIN.y - 1 )
-      draw_rectangle( point, GRID_SIZE.inflate( 2, 2 ), 0, Gosu::Color::BLACK )
+      # point = Point.new( 0, 0 )
+      # size  = Size.new( WIDTH, HEIGHT )
+      # draw_rectangle( point, size, 0, SILVER )
+
+      # point.move_to!( GRID_ORIGIN.x - 1, GRID_ORIGIN.y - 1 )
+      # draw_rectangle( point, GRID_SIZE.inflate( 2, 2 ), 0, Gosu::Color::BLACK )
     end
 
     def draw_grid
