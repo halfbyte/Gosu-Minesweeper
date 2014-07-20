@@ -9,9 +9,10 @@ module Minesweeper
   class Game < Gosu::Window
     include Constants
 
-    attr_reader :images
+    attr_reader :image, :font
 
     def initialize
+      puts "#{WIDTH} x #{HEIGHT}"
       super( WIDTH, HEIGHT, false, 50 )
       self.caption = 'Gosu Minesweeper'
 
@@ -64,10 +65,10 @@ module Minesweeper
     def load_resources
       loader = ResourceLoader.new( self )
 
-      @images = loader.images
-      @fonts  = loader.fonts
+      @image = loader.images
+      @font  = loader.fonts
 
-      Block.setup_graphics( self, @images, @fonts )
+      Block.setup_graphics( self )
     end
 
     def update_position
