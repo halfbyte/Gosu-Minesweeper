@@ -24,7 +24,9 @@ module Minesweeper
 
     # Colours
 
-    SILVER        = Gosu::Color.new( 0xff, 0xe0, 0xe0, 0xe0 )
+    SILVER        = Gosu::Color.new( 0xffe0e0e0 )
+
+    DISPLAY       = Gosu::Color.new( 0xffff0000 )
 
     BLUE1         = Gosu::Color.new( 0xff1c18ff )
     GREEN2        = Gosu::Color.new( 0xff018500 )
@@ -33,7 +35,7 @@ module Minesweeper
     MAROON5       = Gosu::Color.new( 0xff850700 )
     CYAN6         = Gosu::Color.new( 0xff0b8586 )
     BLACK7        = Gosu::Color::BLACK
-    GREY8         = Gosu::Color.new( 0xff, 0x50, 0x50, 0x50 )
+    GREY8         = Gosu::Color.new( 0xff505050 )
 
     NUMBERS       = [0, BLUE1, GREEN2, RED3, PURPLE4, MAROON5, CYAN6, BLACK7, GREY8]
   end

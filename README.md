@@ -1,4 +1,4 @@
-Gosu-Minesweeper
-================
+Minesweeper
+===========
 
-Minesweeper using Ruby and Gosu
+The classic Minesweeper game using Ruby and Gosu.

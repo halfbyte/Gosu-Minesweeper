@@ -7,7 +7,8 @@ module Minesweeper
 
     def fonts
       {
-        block:  Gosu::Font.new( @game, 'Arial Bold', 20 )
+        block:    Gosu::Font.new( @game, 'Arial Bold', 20 ),
+        display:  Gosu::Font.new( @game, Gosu.default_font_name, 60 )
       }
     end
 

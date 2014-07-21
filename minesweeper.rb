@@ -29,21 +29,21 @@ module Minesweeper
 
     def draw
       draw_background
+      draw_header
       draw_grid
     end
 
     def button_down( code )
-      close if code == Gosu::KbEscape   # DEBUG
-      reset_game if code == Gosu::KbR
-      @grid.open_all if code == Gosu::KbO
-
       @start_time ||= Time.now
 
-      if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
-        return @position = Position.new( mouse_x, mouse_y, :auto_open)
-      end
+      return @position = Position.new( mouse_x, mouse_y, :auto_open) \
+        if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
 
-      @position = Position.new( mouse_x, mouse_y, :mark ) if code == Gosu::MsRight
+      case code
+      when Gosu::KbEscape then close
+      when Gosu::KbR      then reset_game
+      when Gosu::MsRight  then @position = Position.new( mouse_x, mouse_y, :mark )
+      end
     end
 
     # Left Mouse Button is detected on release to avoid it being triggered
@@ -78,6 +78,16 @@ module Minesweeper
 
     def draw_background
       @image[:background].draw( 0, 0, 0 )
+    end
+
+    def draw_header
+      @font[:display].draw( @grid.bombs_left.to_s, 500, 10, 1, 1, 1, DISPLAY )
+
+      return unless @start_time
+
+      elapsed = (Time.now - @start_time).to_i
+      time    = format( '%01d:%02d', elapsed / 60, elapsed % 60 )
+      @font[:display].draw( time, 250, 10, 1, 1, 1, DISPLAY )
     end
 
     def draw_grid
