@@ -71,7 +71,7 @@ module Minesweeper
       return image( :not_bomb ).draw( @point.x, @point.y, 1 ) if marked?
 
       self.class.font.draw( @number.to_s, @point.x + 8, @point.y + 2, 2,
-                              1, 1, NUMBERS[@number] ) if number > 0
+                            1, 1, NUMBERS[@number] ) if number > 0
     end
 
     def draw_closed

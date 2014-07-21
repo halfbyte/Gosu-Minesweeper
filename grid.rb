@@ -5,6 +5,8 @@ module Minesweeper
   class Grid
     include Constants
 
+    attr_reader :bombs_left
+
     def initialize( width = GRID_WIDTH, height = GRID_HEIGHT )
       @width, @height = width, height   # Width and Height in blocks
       GridPos.set_limits( width, height )
@@ -15,21 +17,25 @@ module Minesweeper
       @grid = empty_grid
       add_bombs
       set_numbers
+
+      @bombs_left = bombs
     end
 
     def draw
-      each { |block| block.draw }
+      @grid.each { |block| block.draw }
     end
 
     # Open up all the blocks that are unmarked bombs or incorrectly marked.
     def open_all_bombs
-      each { |block| block.show if block.bomb? != block.marked? }
+      @grid.each { |block| block.show if block.bomb? != block.marked? }
     end
 
     def mark( point )
       block, _ = block_from_point point
 
       block.toggle_mark if block
+
+      @bombs_left += block.marked? ? -1 : 1
     end
 
     def open( point )
@@ -71,9 +77,7 @@ module Minesweeper
     end
 
     def add_bombs
-      to_add  = bombs
-
-      bombs.times do |count|
+      bombs.times do
         place = 0
 
         loop do
@@ -87,19 +91,8 @@ module Minesweeper
     end
 
     def set_numbers
-      each_with_index do |block, idx|
+      @grid.each_with_index do |block, idx|
         block.number = neighbouring_bombs( idx ) unless block.bomb?
-      end
-    end
-
-    def open_blanks( index )
-      @grid[index].show
-
-      neighbours( index ).each do |pos|
-        block = grid( pos )
-        next unless block.closed? && !block.marked?
-
-        open_block( pos )
       end
     end
 
@@ -111,13 +104,24 @@ module Minesweeper
       pos.valid? ? [grid( pos ), pos.to_index] : [nil, -1]
     end
 
+    # These two functions are mutually recursive
     def open_block( pos )
       block = grid( pos )
 
       if block.bomb?
         open_all_bombs
       else
-        block.empty? ? open_blanks( pos.to_index ) : block.show
+        block.show
+        open_blanks( pos ) if block.empty?
+      end
+    end
+
+    def open_blanks( base )
+      neighbours( base.to_index ).each do |pos|
+        block = grid( pos )
+        next unless block.closed? && !block.marked?
+
+        open_block( pos )
       end
     end
 
@@ -146,14 +150,6 @@ module Minesweeper
       end
 
       neighs
-    end
-
-    def each
-      @grid.each { |block| yield block }
-    end
-
-    def each_with_index
-      @grid.each_with_index { |block, idx| yield block, idx }
     end
 
     def bombs
@@ -190,10 +186,9 @@ module Minesweeper
     end
 
     def valid?
-      row.between?( 0, self.class.height - 1 ) && col.between?( 0, self.class.width - 1 )
+      row.between?( 0, self.class.height - 1 ) &&
+      col.between?( 0, self.class.width - 1 )
     end
-
-    private
 
     class << self
       attr_reader :width, :height
