@@ -24,7 +24,9 @@ module Minesweeper
     end
 
     def initialize( point, bomb = false, number = 0 )
-      @point, @bomb, @number = point, bomb, number
+      @point  = point
+      @bomb   = bomb
+      @number = number
 
       @closed = true
       @marked = false
@@ -50,6 +52,10 @@ module Minesweeper
     def show
       @closed = false
       bomb?
+    end
+
+    def show_if_bad
+      show if marked? != bomb?
     end
 
     def toggle_mark

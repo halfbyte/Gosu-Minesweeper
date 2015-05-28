@@ -8,7 +8,8 @@ module Minesweeper
     attr_reader :bombs_left
 
     def initialize( width = GRID_WIDTH, height = GRID_HEIGHT )
-      @width, @height = width, height   # Width and Height in blocks
+      @width  = width
+      @height = height   # Width and Height in blocks
       GridPos.set_limits( width, height )
 
       @origin = GRID_ORIGIN.offset( (GRID_WIDTH - width) * TILE_WIDTH / 2,
@@ -22,18 +23,20 @@ module Minesweeper
     end
 
     def draw
-      @grid.each { |block| block.draw }
+      @grid.each( &:draw )
     end
 
     # Open up all the blocks that are unmarked bombs or incorrectly marked.
     def open_all_bombs
-      @grid.each { |block| block.show if block.bomb? != block.marked? }
+      @grid.each( &:show_if_bad )
     end
 
     def mark( point )
       block, _ = block_from_point point
 
-      block.toggle_mark if block
+      return unless block
+
+      block.toggle_mark
 
       @bombs_left += block.marked? ? -1 : 1
     end
@@ -49,9 +52,8 @@ module Minesweeper
     def auto_open( point )
       block, index = block_from_point point
 
-      return unless block &&
-        block.number > 0 &&
-        block.number == neighbouring_marks( index )
+      return unless block && block.number > 0 &&
+                    block.number == neighbouring_marks( index )
 
       neighbours( index ).each do |pos|
         block = grid( pos )
@@ -97,11 +99,15 @@ module Minesweeper
     end
 
     def block_from_point( point )
-      pos = GridPos.new(
-        (point.y - @origin.y) / TILE_HEIGHT,
-        (point.x - @origin.x) / TILE_WIDTH )
+      pos = pos_from_point( point )
 
       pos.valid? ? [grid( pos ), pos.to_index] : [nil, -1]
+    end
+
+    def pos_from_point( point )
+      GridPos.new(
+        (point.y - @origin.y) / TILE_HEIGHT,
+        (point.x - @origin.x) / TILE_WIDTH )
     end
 
     # These two functions are mutually recursive
@@ -127,12 +133,12 @@ module Minesweeper
 
     # Number of neighbouring bombs
     def neighbouring_bombs( idx )
-      neighbours( idx ).select { |pos| grid( pos ).bomb? }.size
+      neighbours( idx ).count { |pos| grid( pos ).bomb? }
     end
 
     # Number of neighbouring marks
     def neighbouring_marks( idx )
-      neighbours( idx ).select { |pos| grid( pos ).marked? }.size
+      neighbours( idx ).count { |pos| grid( pos ).marked? }
     end
 
     # List of valid neighbpurs
@@ -170,7 +176,8 @@ module Minesweeper
     attr_reader :row, :col
 
     def self.set_limits( width, height )
-      @width, @height = width.to_i, height.to_i
+      @width  = width.to_i
+      @height = height.to_i
     end
 
     def self.from_index( index )
@@ -178,7 +185,8 @@ module Minesweeper
     end
 
     def initialize( row, col )
-      @row, @col = row.to_i, col.to_i
+      @row = row.to_i
+      @col = col.to_i
     end
 
     def to_index
@@ -187,7 +195,7 @@ module Minesweeper
 
     def valid?
       row.between?( 0, self.class.height - 1 ) &&
-      col.between?( 0, self.class.width - 1 )
+        col.between?( 0, self.class.width - 1 )
     end
 
     class << self

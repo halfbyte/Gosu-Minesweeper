@@ -18,9 +18,8 @@ module Minesweeper
     WIDTH         = GRID_WIDTH * TILE_WIDTH + 2 + MARGIN * 2
     HEIGHT        = GRID_HEIGHT * TILE_HEIGHT + 2 * MARGIN + 80
 
-    GRID_ORIGIN   = Point.new(
-                      MARGIN + 1,
-                      (HEIGHT - MARGIN) - (GRID_HEIGHT * TILE_HEIGHT + 2) )
+    GRID_ORIGIN   = Point.new( MARGIN + 1,
+                               (HEIGHT - MARGIN) - (GRID_HEIGHT * TILE_HEIGHT + 2) )
 
     # Colours
 
