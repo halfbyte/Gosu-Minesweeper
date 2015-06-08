@@ -5,7 +5,7 @@ module Minesweeper
   class Grid
     include Constants
 
-    attr_reader :bombs_left
+    attr_reader :bombs_left, :failed
 
     def initialize( width = GRID_WIDTH, height = GRID_HEIGHT )
       @width  = width
@@ -20,6 +20,7 @@ module Minesweeper
       set_numbers
 
       @bombs_left = bombs
+      @failed = nil
     end
 
     def draw
@@ -29,6 +30,8 @@ module Minesweeper
     # Open up all the blocks that are unmarked bombs or incorrectly marked.
     def open_all_bombs
       @grid.each( &:show_if_bad )
+
+      @failed = true
     end
 
     def mark( point )
@@ -42,7 +45,7 @@ module Minesweeper
     end
 
     def open( point )
-      block, index = block_from_point point
+      block, index = block_from_point point     # block checked, index used
 
       return unless block
 
@@ -50,7 +53,7 @@ module Minesweeper
     end
 
     def auto_open( point )
-      block, index = block_from_point point
+      block, index = block_from_point point     # Block checked, index used
 
       return unless block && block.number > 0 &&
                     block.number == neighbouring_marks( index )
@@ -98,16 +101,13 @@ module Minesweeper
       end
     end
 
+    # Returns block and its index from global co-ordinate
     def block_from_point( point )
-      pos = pos_from_point( point )
-
-      pos.valid? ? [grid( pos ), pos.to_index] : [nil, -1]
-    end
-
-    def pos_from_point( point )
-      GridPos.new(
+      pos = GridPos.new(
         (point.y - @origin.y) / TILE_HEIGHT,
         (point.x - @origin.x) / TILE_WIDTH )
+
+      pos.valid? ? [grid( pos ), pos.to_index] : [nil, -1]
     end
 
     # These two functions are mutually recursive

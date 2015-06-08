@@ -23,8 +23,12 @@ module Minesweeper
       true
     end
 
+    def failed?
+      @grid && @grid.failed
+    end
+
     def update
-      update_position if @position
+      update_position if @position && !failed?
     end
 
     def draw
