@@ -14,16 +14,16 @@ module Minesweeper
       attr_accessor :game, :font
     end
 
-    def self.setup_graphics( game )
+    def self.setup_graphics(game)
       @game = game
       @font = game.font[:block]
     end
 
-    def self.image( name )
+    def self.image(name)
       @game.image[name]
     end
 
-    def initialize( point, bomb = false, number = 0 )
+    def initialize(point, bomb = false, number = 0)
       @point  = point
       @bomb   = bomb
       @number = number
@@ -69,20 +69,20 @@ module Minesweeper
     def draw
       return draw_closed if closed?
 
-      game.draw_rectangle( @point, TILE_SIZE, 1, Gosu::Color::WHITE )
+      game.draw_rectangle(@point, TILE_SIZE, 1, Gosu::Color::WHITE)
 
-      return image( :bomb ).draw( @point.x, @point.y, 1 ) if bomb?    # Oops
+      return image(:bomb).draw(@point.x, @point.y, 1) if bomb?    # Oops
 
       # Incorrectly Marked?
-      return image( :not_bomb ).draw( @point.x, @point.y, 1 ) if marked?
+      return image(:not_bomb).draw(@point.x, @point.y, 1) if marked?
 
-      self.class.font.draw( @number.to_s, @point.x + 8, @point.y + 2, 2,
-                            1, 1, NUMBERS[@number] ) if number > 0
+      self.class.font.draw(@number.to_s, @point.x + 8, @point.y + 2, 2,
+                           1, 1, NUMBERS[@number]) if number > 0
     end
 
     def draw_closed
-      image( :tile ).draw( @point.x, @point.y, 1 )
-      image( :flag ).draw( @point.x, @point.y, 2 ) if marked?
+      image(:tile).draw(@point.x, @point.y, 1)
+      image(:flag).draw(@point.x, @point.y, 2) if marked?
     end
 
     private
@@ -91,8 +91,8 @@ module Minesweeper
       self.class.game
     end
 
-    def image( name )
-      self.class.image( name )
+    def image(name)
+      self.class.image(name)
     end
   end
 end

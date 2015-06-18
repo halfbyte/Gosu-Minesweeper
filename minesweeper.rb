@@ -11,9 +11,11 @@ module Minesweeper
 
     attr_reader :image, :font
 
-    def initialize
-      super( WIDTH, HEIGHT, false, 50 )
+    def initialize(debug = false)
+      super(WIDTH, HEIGHT, false, 50)
       self.caption = 'Gosu Minesweeper'
+
+      @debug = debug
 
       load_resources
       reset_game
@@ -37,25 +39,28 @@ module Minesweeper
       draw_grid
     end
 
-    def button_down( code )
-      @start_time ||= Time.now
-
-      return @position = Position.new( mouse_x, mouse_y, :auto_open) \
-        if button_down?( Gosu::MsLeft ) && button_down?( Gosu::MsRight )
+    def button_down(code)
+      return @position = Position.new(mouse_x, mouse_y, :auto_open) \
+        if button_down?(Gosu::MsLeft) && button_down?(Gosu::MsRight)
 
       case code
-      when Gosu::KbEscape then close
+      when Gosu::KbEscape then close if @debug
       when Gosu::KbR      then reset_game
-      when Gosu::MsRight  then @position = Position.new( mouse_x, mouse_y, :mark )
+      when Gosu::MsRight  then @position = Position.new(mouse_x, mouse_y, :mark)
+
+      when Gosu::MsMiddle
+        @position = Position.new(mouse_x, mouse_y, :safe_open) if @debug
       end
     end
 
     # Left Mouse Button is detected on release to avoid it being triggered
     # accidentally on a bombed square.
-    def button_up( code )
-      return unless code == Gosu::MsLeft && !button_down?( Gosu::MsRight )
+    def button_up(code)
+      @start_time ||= Time.now
 
-      @position = Position.new( mouse_x, mouse_y, :open )
+      return unless code == Gosu::MsLeft && !button_down?(Gosu::MsRight)
+
+      @position = Position.new(mouse_x, mouse_y, :open)
     end
 
     private
@@ -66,32 +71,32 @@ module Minesweeper
     end
 
     def load_resources
-      loader = ResourceLoader.new( self )
+      loader = ResourceLoader.new(self)
 
       @image = loader.images
       @font  = loader.fonts
 
-      Block.setup_graphics( self )
+      Block.setup_graphics(self)
     end
 
     def update_position
-      @grid.send( @position.op, @position.point )
+      @grid.send(@position.op, @position.point)
 
       @position = nil
     end
 
     def draw_background
-      @image[:background].draw( 0, 0, 0 )
+      @image[:background].draw(0, 0, 0)
     end
 
     def draw_header
-      @font[:display].draw( @grid.bombs_left.to_s, 500, 10, 1, 1, 1, DISPLAY )
+      @font[:display].draw(@grid.bombs_left.to_s, 500, 10, 1, 1, 1, DISPLAY)
 
       return unless @start_time
 
       elapsed = (Time.now - @start_time).to_i
-      time    = format( '%01d:%02d', elapsed / 60, elapsed % 60 )
-      @font[:display].draw( time, 250, 10, 1, 1, 1, DISPLAY )
+      time    = format('%01d:%02d', elapsed / 60, elapsed % 60)
+      @font[:display].draw(time, 250, 10, 1, 1, 1, DISPLAY)
     end
 
     def draw_grid
@@ -105,11 +110,11 @@ module Minesweeper
 
     attr_reader :point, :op
 
-    def initialize( x, y, op )
-      @point = Point.new( x, y )
+    def initialize(x, y, op)
+      @point = Point.new(x, y)
       @op = op
     end
   end
 end
 
-Minesweeper::Game.new.show
+Minesweeper::Game.new(:debug).show
