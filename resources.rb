@@ -4,7 +4,10 @@ module Minesweeper
     def self.fonts
       {
         block:    Gosu::Font.new(20, name: 'Arial Bold'),
-        display:  Gosu::Font.new(60, name: Gosu.default_font_name)
+        display:  Gosu::Font.new(60, name: Gosu.default_font_name),
+        header:   Gosu::Font.new(36, name: Gosu.default_font_name),
+        title:    Gosu::Font.new(24, name: Gosu.default_font_name),
+        info:     Gosu::Font.new(16, name: Gosu.default_font_name)
       }
     end
 

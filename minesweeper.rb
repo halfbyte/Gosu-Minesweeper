@@ -3,6 +3,7 @@
 require 'constants'
 require 'resources'
 require 'grid'
+require 'gameover'
 
 module Minesweeper
   # Minesweeper game
@@ -35,7 +36,7 @@ module Minesweeper
 
     def update
       if failed? || completed?
-        puts failed? ? "Oops!" : "Woohoo!"
+        @overlay ||= GameOver.new(self)
       else
         update_position if @position
       end
@@ -45,6 +46,7 @@ module Minesweeper
       draw_background
       draw_header
       draw_grid
+      @overlay.draw if @overlay
     end
 
     def button_down(code)
@@ -74,7 +76,8 @@ module Minesweeper
     private
 
     def reset_game
-      @grid = Grid.new(9, 9)
+      @overlay = nil
+      @grid = Grid.new(16, 16)
       @start_time = nil
     end
 

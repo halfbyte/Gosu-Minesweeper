@@ -35,7 +35,7 @@ module Minesweeper
     end
 
     def mark(point)
-      block, _ = block_from_point point
+      block, _idx = block_from_point point
 
       return unless block
 
@@ -175,7 +175,6 @@ module Minesweeper
       block.toggle_mark
 
       @bombs_left += block.marked? ? -1 : 1
-      puts "mark Bombs: #{@bombs_left} (#{block.marked?})"
     end
   end
 
