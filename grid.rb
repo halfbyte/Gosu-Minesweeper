@@ -39,9 +39,7 @@ module Minesweeper
 
       return unless block
 
-      block.toggle_mark
-
-      @bombs_left += block.marked? ? -1 : 1
+      toggle(block)
     end
 
     def open(point)
@@ -60,8 +58,7 @@ module Minesweeper
       pos = GridPos.from_index index
 
       if block.bomb?
-        block.toggle_mark
-        @bombs_left += block.marked? ? -1 : 1
+        toggle(block)
       else
         open_block pos
       end
@@ -170,6 +167,15 @@ module Minesweeper
 
     def grid(pos)
       @grid[pos.to_index]
+    end
+
+    def toggle(block)
+      return unless block.closed?
+
+      block.toggle_mark
+
+      @bombs_left += block.marked? ? -1 : 1
+      puts "mark Bombs: #{@bombs_left} (#{block.marked?})"
     end
   end
 

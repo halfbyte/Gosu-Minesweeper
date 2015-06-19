@@ -12,7 +12,7 @@ module Minesweeper
     attr_reader :image, :font
 
     def initialize(debug = false)
-      super(WIDTH, HEIGHT, false, 50)
+      super(WIDTH, HEIGHT, false)
       self.caption = 'Gosu Minesweeper'
 
       @debug = debug
@@ -34,7 +34,11 @@ module Minesweeper
     end
 
     def update
-      update_position if @position && !(failed? || completed?)
+      if failed? || completed?
+        puts failed? ? "Oops!" : "Woohoo!"
+      else
+        update_position if @position
+      end
     end
 
     def draw

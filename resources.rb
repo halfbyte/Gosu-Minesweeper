@@ -15,7 +15,8 @@ module Minesweeper
         bomb:       Gosu::Image.new('media/Bomb.png'),
         flag:       Gosu::Image.new('media/Flag.png'),
         not_bomb:   Gosu::Image.new('media/NotBomb.png'),
-        digits:     Gosu::Image.load_tiles('media/Digits.png', 34, 60, tileable: true)
+        digits:     Gosu::Image.load_tiles('media/Digits.png', 34, 60,
+                                           tileable: true)
       }
     end
   end
