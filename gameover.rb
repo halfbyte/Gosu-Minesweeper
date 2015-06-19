@@ -1,7 +1,3 @@
-require 'gosu_enhanced'
-
-require 'constants'
-
 module Minesweeper
   # Show a completed window
   class GameOver

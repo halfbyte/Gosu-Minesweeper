@@ -4,19 +4,21 @@ require 'constants'
 require 'resources'
 require 'grid'
 require 'gameover'
+require 'renderer'
 
 module Minesweeper
   # Minesweeper game
   class Game < Gosu::Window
     include Constants
 
-    attr_reader :image, :font
+    attr_reader :image, :font, :grid, :start_time
 
     def initialize(debug = false)
       super(WIDTH, HEIGHT, false)
       self.caption = 'Gosu Minesweeper'
 
       @debug = debug
+      @renderer = Renderer.new(self)
 
       load_resources
       reset_game
@@ -43,9 +45,7 @@ module Minesweeper
     end
 
     def draw
-      draw_background
-      draw_header
-      draw_grid
+      @renderer.draw
       @overlay.draw if @overlay
     end
 
@@ -92,24 +92,6 @@ module Minesweeper
       @grid.send(@position.op, @position.point)
 
       @position = nil
-    end
-
-    def draw_background
-      @image[:background].draw(0, 0, 0)
-    end
-
-    def draw_header
-      @font[:display].draw(@grid.bombs_left.to_s, 500, 10, 1, 1, 1, DISPLAY)
-
-      return unless @start_time
-
-      elapsed = (Time.now - @start_time).to_i
-      time    = format('%01d:%02d', elapsed / 60, elapsed % 60)
-      @font[:display].draw(time, 250, 10, 1, 1, 1, DISPLAY)
-    end
-
-    def draw_grid
-      @grid.draw
     end
   end
 
