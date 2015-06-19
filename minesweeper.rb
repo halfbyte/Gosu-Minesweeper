@@ -29,8 +29,12 @@ module Minesweeper
       @grid && @grid.failed
     end
 
+    def completed?
+      @grid && @grid.complete
+    end
+
     def update
-      update_position if @position && !failed?
+      update_position if @position && !(failed? || completed?)
     end
 
     def draw
@@ -66,15 +70,13 @@ module Minesweeper
     private
 
     def reset_game
-      @grid = Grid.new
+      @grid = Grid.new(9, 9)
       @start_time = nil
     end
 
     def load_resources
-      loader = ResourceLoader.new(self)
-
-      @image = loader.images
-      @font  = loader.fonts
+      @image = ResourceLoader.images
+      @font  = ResourceLoader.fonts
 
       Block.setup_graphics(self)
     end

@@ -73,12 +73,16 @@ module Minesweeper
       return unless block && block.number > 0 &&
                     block.number == neighbouring_marks(index)
 
-      neighbours(index).each do |pos|
+      GridPos.neighbours(index).each do |pos|
         block = grid(pos)
         next unless block.closed? && !block.marked?
 
         open_block(pos)
       end
+    end
+
+    def complete
+      @bombs_left == 0 && @grid.all? { |block| block.bomb? == block.marked? }
     end
 
     private
@@ -138,7 +142,7 @@ module Minesweeper
     end
 
     def open_blanks(base)
-      neighbours(base.to_index).each do |pos|
+      GridPos.neighbours(base.to_index).each do |pos|
         block = grid(pos)
         next unless block.closed? && !block.marked?
 
@@ -148,29 +152,12 @@ module Minesweeper
 
     # Number of neighbouring bombs
     def neighbouring_bombs(idx)
-      neighbours(idx).count { |pos| grid(pos).bomb? }
+      GridPos.neighbours(idx).count { |pos| grid(pos).bomb? }
     end
 
     # Number of neighbouring marks
     def neighbouring_marks(idx)
-      neighbours(idx).count { |pos| grid(pos).marked? }
-    end
-
-    # List of valid neighbpurs
-    def neighbours(idx)
-      neighs  = []
-      base    =  GridPos.from_index(idx)
-
-      (-1..1).each do |row|
-        (-1..1).each do |col|
-          next if row == 0 && col == 0
-
-          point = GridPos.new(base.row + row, base.col + col)
-          neighs << point if point.valid?
-        end
-      end
-
-      neighs
+      GridPos.neighbours(idx).count { |pos| grid(pos).marked? }
     end
 
     def bombs
@@ -197,6 +184,22 @@ module Minesweeper
 
     def self.from_index(index)
       new(index / width, index % width)
+    end
+
+    def self.neighbours(idx)
+      neighs  = []
+      base    = from_index(idx)
+
+      (-1..1).each do |row|
+        (-1..1).each do |col|
+          next if row == 0 && col == 0
+
+          point = new(base.row + row, base.col + col)
+          neighs << point if point.valid?
+        end
+      end
+
+      neighs
     end
 
     def initialize(row, col)
