@@ -4,13 +4,13 @@ module Minesweeper
     include Constants
 
     def initialize(game)
-      @game   = game
-      @header = game.font[:header]
-      @title  = game.font[:title]
-      @ins    = game.font[:info]
+      @game     = game
+      @header   = game.font[:header]
+      @title    = game.font[:title]
+      @ins      = game.font[:info]
+      @elapsed  = (Time.now - game.start_time).to_i
 
-      @size   = Size.new(WIDTH * 2 / 3, HEIGHT / 2)
-      @pos    = Point.new(WIDTH / 6, HEIGHT / 3)
+      set_location
     end
 
     def draw
@@ -26,8 +26,14 @@ module Minesweeper
 
     private
 
+    def set_location
+      @size = Size.new(WIDTH * 3 / 4, HEIGHT / 2)
+      @pos  = Point.new(WIDTH / 8, HEIGHT / 3)
+    end
+
     def draw_header
-      complete  = "You're through the minefield"
+      complete  = format "You're through the minefield in %d:%02d",
+                         @elapsed / 60, @elapsed % 60
       hsize     = @header.measure(complete)
       hpos      = @pos.offset((@size.width - hsize.width) / 2, hsize.height)
 
@@ -36,10 +42,10 @@ module Minesweeper
 
     def draw_result
       if @game.failed?
-        complete = 'Unfortunately, without any lower legs'
+        complete = 'Unfortunately, without your lower legs'
         colour   = RED3
       else
-        complete = 'You found all the mines'
+        complete = 'Well done, you found all the mines'
         colour   = BLUE1
       end
 

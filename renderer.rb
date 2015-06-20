@@ -9,11 +9,12 @@ module Minesweeper
       @game = game
     end
 
-    def draw
+    def draw(overlay)
       draw_background
       draw_bomb_count
-      draw_elapsed if @game.start_time
+      draw_elapsed if @game.start_time && !overlay
       draw_grid
+      overlay.draw if overlay
     end
 
     private
@@ -31,21 +32,23 @@ module Minesweeper
 
     def draw_elapsed
       elapsed = (Time.now - @game.start_time).to_i
-      time    = format('%01d:%02d', elapsed / 60, elapsed % 60)
-      digits = [elapsed / 60, COLON, elapsed % 60 / 10, elapsed % 60 % 10]
+      secs    = elapsed % 60
+      digits  = [elapsed / 60, COLON, secs / 10, secs % 10]
 
-      display_led( digits, 210, 9)
+      display_led(digits, 210, 9)
+    end
+
+    def display_led(digits, x, y)
+      dimage = @game.image[:digits]
+
+      digits.each do |n|
+        dimage[n].draw(x, y, 1)
+        x += dimage[0].width
+      end
     end
 
     def draw_grid
       @game.grid.draw
-    end
-
-    def display_led(digits, x, y)
-      digits.each do |n|
-        @game.image[:digits][n].draw(x, y, 1)
-        x += @game.image[:digits][0].width
-      end
     end
   end
 end

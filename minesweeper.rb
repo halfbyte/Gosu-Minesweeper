@@ -45,8 +45,7 @@ module Minesweeper
     end
 
     def draw
-      @renderer.draw
-      @overlay.draw if @overlay
+      @renderer.draw(@overlay)
     end
 
     def button_down(code)

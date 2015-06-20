@@ -1,4 +1,5 @@
 require 'block'
+require 'gridpos'
 
 module Minesweeper
   # Mined grid
@@ -175,54 +176,6 @@ module Minesweeper
       block.toggle_mark
 
       @bombs_left += block.marked? ? -1 : 1
-    end
-  end
-
-  # Hold and convert between (row, col) and index.
-  class GridPos
-    attr_reader :row, :col
-
-    def self.set_limits(width, height)
-      @width  = width.to_i
-      @height = height.to_i
-    end
-
-    def self.from_index(index)
-      new(index / width, index % width)
-    end
-
-    def self.neighbours(idx)
-      neighs  = []
-      base    = from_index(idx)
-
-      (-1..1).each do |row|
-        (-1..1).each do |col|
-          next if row == 0 && col == 0
-
-          point = new(base.row + row, base.col + col)
-          neighs << point if point.valid?
-        end
-      end
-
-      neighs
-    end
-
-    def initialize(row, col)
-      @row = row.to_i
-      @col = col.to_i
-    end
-
-    def to_index
-      @row * self.class.width + @col
-    end
-
-    def valid?
-      row.between?(0, self.class.height - 1) &&
-        col.between?(0, self.class.width - 1)
-    end
-
-    class << self
-      attr_reader :width, :height
     end
   end
 end
