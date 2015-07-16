@@ -23,11 +23,11 @@ module Minesweeper
       @game.image[name]
     end
 
-    def initialize(point, bomb = false, number = 0)
+    def initialize(point)
       @point  = point
-      @bomb   = bomb
-      @number = number
 
+      @bomb   = false
+      @number = 0
       @closed = true
       @marked = false
     end
@@ -71,18 +71,27 @@ module Minesweeper
 
       game.draw_rectangle(@point, TILE_SIZE, 1, Gosu::Color::WHITE)
 
-      return image(:bomb).draw(@point.x, @point.y, 1) if bomb?    # Oops
+      px = @point.x
+      py = @point.y
+      return image(:bomb).draw(px, py, 1) if bomb?    # Oops
 
       # Incorrectly Marked?
-      return image(:not_bomb).draw(@point.x, @point.y, 1) if marked?
+      return image(:not_bomb).draw(px, py, 1) if marked?
 
-      font.draw(@number.to_s, @point.x + 8, @point.y + 2, 2, 1, 1,
-                NUMBERS[@number]) if number > 0
+      draw_open
     end
 
     def draw_closed
-      image(:tile).draw(@point.x, @point.y, 1)
-      image(:flag).draw(@point.x, @point.y, 2) if marked?
+      px = @point.x
+      py = @point.y
+
+      image(:tile).draw(px, py, 1)
+      image(:flag).draw(px, py, 2) if marked?
+    end
+
+    def draw_open
+      font.draw(@number.to_s, @point.x + 8, @point.y + 2, 2, 1, 1,
+                NUMBERS[@number]) if number > 0
     end
 
     private

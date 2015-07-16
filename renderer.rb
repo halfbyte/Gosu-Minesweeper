@@ -38,11 +38,13 @@ module Minesweeper
       display_led(digits, 210, 9)
     end
 
+    # This reeks of :reek:UncommunicativeParameterName
+    # This reeks of :reek:UncommunicativeVariableName
     def display_led(digits, x, y)
       dimage = @game.image[:digits]
 
-      digits.each do |n|
-        dimage[n].draw(x, y, 1)
+      digits.each do |digit|
+        dimage[digit].draw(x, y, 1)
         x += dimage[0].width
       end
     end

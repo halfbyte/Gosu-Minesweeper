@@ -2,12 +2,14 @@ module Minesweeper
   # Load necessary graphic resources
   class ResourceLoader
     def self.fonts
+      default = Gosu.default_font_name
+
       {
         block:    Gosu::Font.new(20, name: 'Arial Bold'),
-        display:  Gosu::Font.new(60, name: Gosu.default_font_name),
-        header:   Gosu::Font.new(36, name: Gosu.default_font_name),
-        title:    Gosu::Font.new(24, name: Gosu.default_font_name),
-        info:     Gosu::Font.new(16, name: Gosu.default_font_name)
+        display:  Gosu::Font.new(60, name: default),
+        header:   Gosu::Font.new(36, name: default),
+        title:    Gosu::Font.new(24, name: default),
+        info:     Gosu::Font.new(16, name: default)
       }
     end
 

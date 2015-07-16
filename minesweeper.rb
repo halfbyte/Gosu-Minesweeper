@@ -100,6 +100,7 @@ module Minesweeper
 
     attr_reader :point, :op
 
+    # This reeks of :reek:UncommunicativeParameterName
     def initialize(x, y, op)
       @point = Point.new(x, y)
       @op = op
