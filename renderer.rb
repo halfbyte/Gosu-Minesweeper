@@ -6,7 +6,9 @@ module Minesweeper
     COLON = 10
 
     def initialize(game)
-      @game = game
+      @game        = game
+      @bomb_led    = LED.new(game, 495, 9)
+      @elapsed_led = LED.new(game, 210, 9)
     end
 
     def draw(overlay)
@@ -27,7 +29,7 @@ module Minesweeper
       bombs = @game.grid.bombs_left
       digits = [bombs / 10, bombs % 10]
 
-      display_led(digits, 495, 9)
+      @bomb_led.draw(digits)
     end
 
     def draw_elapsed
@@ -35,22 +37,29 @@ module Minesweeper
       secs    = elapsed % 60
       digits  = [elapsed / 60, COLON, secs / 10, secs % 10]
 
-      display_led(digits, 210, 9)
-    end
-
-    # This reeks of :reek:UncommunicativeParameterName
-    # This reeks of :reek:UncommunicativeVariableName
-    def display_led(digits, x, y)
-      dimage = @game.image[:digits]
-
-      digits.each do |digit|
-        dimage[digit].draw(x, y, 1)
-        x += dimage[0].width
-      end
+      @elapsed_led.draw(digits)
     end
 
     def draw_grid
       @game.grid.draw
+    end
+  end
+end
+
+# Draw a set of digits to look like a 7-segment LED display
+class LED
+  def initialize(game, left, top)
+    @images = game.image[:digits]
+    @left   = left
+    @top    = top
+  end
+
+  def draw(digits)
+    col = @left
+
+    digits.each do |digit|
+      @images[digit].draw(col, @top, 1)
+      col += @images[0].width
     end
   end
 end
