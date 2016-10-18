@@ -9,8 +9,9 @@ module Minesweeper
     attr_reader :bombs_left, :failed
 
     def initialize(width = GRID_WIDTH, height = GRID_HEIGHT)
+      # Width and Height in blocks
       @width  = width
-      @height = height   # Width and Height in blocks
+      @height = height
       GridPos.set_limits(width, height)
 
       @origin = GRID_ORIGIN.offset((GRID_WIDTH - width) * TILE_WIDTH / 2,
@@ -44,15 +45,18 @@ module Minesweeper
     end
 
     def open(point)
-      block, index = block_from_point point     # block checked, index used
+      # block checked, index used
+      block, index = block_from_point point
 
       return unless block
 
-      open_block(GridPos.from_index index)
+      open_block GridPos.from_index(index)
     end
 
-    def safe_open(point)     # Debugging only
-      block, index = block_from_point point     # block checked, index used
+    # Debugging only
+    def safe_open(point)
+      # block checked, index used
+      block, index = block_from_point point
 
       return unless block
 
@@ -66,7 +70,8 @@ module Minesweeper
     end
 
     def auto_open(point)
-      block, index = block_from_point point     # Block checked, index used
+      # Block checked, index used
+      block, index = block_from_point point
 
       return unless block && block.number > 0 &&
                     block.number == neighbouring_marks(index)
@@ -80,7 +85,7 @@ module Minesweeper
     end
 
     def complete
-      @bombs_left == 0 && @grid.all? { |block| block.bomb? == block.marked? }
+      @bombs_left.zero? && @grid.all? { |block| block.bomb? == block.marked? }
     end
 
     private
@@ -114,7 +119,7 @@ module Minesweeper
 
     def set_numbers
       @grid.each_with_index do |block, idx|
-        block.number = neighbouring_bombs(idx) unless block.bomb?
+        block.neighbouring_bombs(neighbouring_bombs(idx)) unless block.bomb?
       end
     end
 
@@ -122,7 +127,8 @@ module Minesweeper
     def block_from_point(point)
       pos = GridPos.new(
         (point.y - @origin.y) / TILE_HEIGHT,
-        (point.x - @origin.x) / TILE_WIDTH)
+        (point.x - @origin.x) / TILE_WIDTH
+      )
 
       pos.valid? ? [grid(pos), pos.to_index] : [nil, -1]
     end

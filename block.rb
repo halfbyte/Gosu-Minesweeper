@@ -5,13 +5,13 @@ module Minesweeper
   class Block
     include Constants
 
-    attr_accessor :number
+    attr_reader :number
 
     @game   = nil
     @font   = nil
 
     class << self
-      attr_accessor :game, :font
+      attr_reader :game, :font
     end
 
     def self.setup_graphics(game)
@@ -32,6 +32,10 @@ module Minesweeper
       @marked = false
     end
 
+    def neighbouring_bombs(bombs)
+      @number = bombs
+    end
+
     def closed?
       @closed
     end
@@ -45,7 +49,7 @@ module Minesweeper
     end
 
     def empty?
-      !bomb? && @number == 0
+      !bomb? && @number.zero?
     end
 
     # Show returns whether a bomb has been uncovered
@@ -73,7 +77,9 @@ module Minesweeper
 
       px = @point.x
       py = @point.y
-      return image(:bomb).draw(px, py, 1) if bomb?    # Oops
+
+      # Return a bomb if it's not marked
+      return image(:bomb).draw(px, py, 1) if bomb?
 
       # Incorrectly Marked?
       return image(:not_bomb).draw(px, py, 1) if marked?

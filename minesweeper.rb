@@ -17,10 +17,11 @@ module Minesweeper
       super(WIDTH, HEIGHT, false)
       self.caption = 'Gosu Minesweeper'
 
+      load_resources
+
       @debug = debug
       @renderer = Renderer.new(self)
 
-      load_resources
       reset_game
     end
 
@@ -39,8 +40,8 @@ module Minesweeper
     def update
       if failed? || completed?
         @overlay ||= GameOver.new(self)
-      else
-        update_position if @position
+      elsif @position
+        update_position
       end
     end
 

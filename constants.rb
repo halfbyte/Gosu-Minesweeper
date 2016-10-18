@@ -2,6 +2,7 @@ require 'gosu_enhanced'
 
 module Minesweeper
   # Game Constants
+  # Obviously this will elicit :reek:TooManyConstants
   module Constants
     include GosuEnhanced
 
@@ -36,10 +37,10 @@ module Minesweeper
     BLACK7        = Gosu::Color::BLACK
     GREY8         = Gosu::Color.new(0xff505050)
 
-    OVERLAY_BG    = Gosu::Color.new(0xe0ffffff)   # Translucent white
+    OVERLAY_BG    = Gosu::Color.new(0xe0ffffff) # Translucent white
     SHADOW        = Gosu::Color.new(0x80000000)
 
     NUMBERS       = [0, BLUE1, GREEN2, RED3, PURPLE4,
-                     MAROON5, CYAN6, BLACK7, GREY8]
+                     MAROON5, CYAN6, BLACK7, GREY8].freeze
   end
 end

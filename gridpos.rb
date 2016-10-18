@@ -15,13 +15,14 @@ module Minesweeper
         new(index / width, index % width)
       end
 
+      # 2 deep is fine so :reek:NestedIterators
       def neighbours(idx)
         neighs  = []
         base    = from_index(idx)
 
         (-1..1).each do |row|
           (-1..1).each do |col|
-            next if row == 0 && col == 0
+            next if row.zero? && col.zero?
 
             pos = new(base.row + row, base.col + col)
             neighs << pos if pos.valid?
