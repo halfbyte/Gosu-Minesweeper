@@ -27,8 +27,8 @@ module Minesweeper
     private
 
     def set_location
-      @size = Size.new(WIDTH * 3 / 4, HEIGHT / 2)
-      @pos  = Point.new(WIDTH / 8, HEIGHT / 3)
+      @size = Size.new(WIDTH * 4 / 5, HEIGHT / 2)
+      @pos  = Point.new(WIDTH / 10, HEIGHT / 3)
     end
 
     def draw_header
