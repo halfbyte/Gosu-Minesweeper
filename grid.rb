@@ -5,6 +5,7 @@ module Minesweeper
   # Mined grid
   class Grid
     include Constants
+    include Enumerable
 
     attr_reader :bombs_left, :failed
 
@@ -29,6 +30,11 @@ module Minesweeper
       @grid.each(&:draw)
     end
 
+    def full_grid
+      @grid
+    end
+
+
     # Open up all the blocks that are unmarked bombs or incorrectly marked.
     def open_all_bombs
       @grid.each(&:show_if_bad)
@@ -36,17 +42,19 @@ module Minesweeper
       @failed = true
     end
 
-    def mark(point)
-      block, _idx = block_from_point point
+    def mark(point, exact = false)
+      block, _idx = block_from_point point, exact
+
+      puts block
 
       return unless block
 
       toggle(block)
     end
 
-    def open(point)
+    def open(point, exact = false)
       # block checked, index used
-      block, index = block_from_point point
+      block, index = block_from_point point, exact
 
       return unless block
 
@@ -56,7 +64,7 @@ module Minesweeper
     # Debugging only
     def safe_open(point)
       # block checked, index used
-      block, index = block_from_point point
+      block, index = block_from_point point, false
 
       return unless block
 
@@ -124,12 +132,15 @@ module Minesweeper
     end
 
     # Returns block and its index from global co-ordinate
-    def block_from_point(point)
-      pos = GridPos.new(
-        (point.y - @origin.y) / TILE_HEIGHT,
-        (point.x - @origin.x) / TILE_WIDTH
-      )
-
+    def block_from_point(point, exact)
+      pos = if exact
+        GridPos.new(point.y, point.x)
+      else
+        GridPos.new(
+          (point.y - @origin.y) / TILE_HEIGHT,
+          (point.x - @origin.x) / TILE_WIDTH
+        )
+      end
       pos.valid? ? [grid(pos), pos.to_index] : [nil, -1]
     end
 
